@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>SportGifs</title>
+</head>
+
+<body>
+    <div id="button-dump"></div>
+    <div id="image-dump"></div>
+    <h1> Add an sport(s)</h1>
+    <input type="text" id="submit-sports">
+    <button id="submit-button">Submit</button>
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <script>
+        var topics = ["baseball", "football", "basketball"];
+
+        function renderButtons() {
+
+            $("#button-dump").empty();
+
+            for (let i = 0; i < topics.length; i++) {
+                var a = $("<button>")
+
+                a.text(topics[i])
+
+                a.attr("id", topics[i])
+
+                a.addClass("sports")
+
+                $("#button-dump").append(a)
+            }
+        }
+
+        renderButtons();
+
+
+        $("#submit-button").on("click", function (event) {
+            event.preventDefault();
+
+            var sports = $("#submit-sports").val().trim()
+
+            topics.push(sports);
+
+            $("#button-dump").append(topics);
+
+            renderButtons();
+        })
+
+
+        $(document).on('click', ".sports", function () {
+            var button = $(this).attr("id")
+
+            var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
+            button + "&api_key=BkaUZZWcFij6J7AoQj3WtPb1R2p9O6V9&limit=10";
+
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            })
+                .then(function (response) {
+                    var results = response.data;
+
+                    for (let i = 0; i < results.length; i++) {
+                        if ((results[i].rating !== "r" && results[i].rating !== "pg-13") ){
+                            var gifDiv = $("<div>");
+
+                            var rating = results[i].rating;
+
+                            var p = $("<p>").text("Rating: " + rating);
+
+                            var personImage = $("<img>");
+
+                            personImage.attr("src", results[i].images.fixed_height.url);
+
+                            gifDiv.append(p);
+
+                            gifDiv.append(personImage);
+
+                            $("#image-dump").prepend(gifDiv);
+                        }
+
+                    }
+                })
+        })
+
+    </script>
+</body>
+
+</html>
